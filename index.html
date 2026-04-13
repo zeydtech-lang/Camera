@@ -3,87 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تطبيق المراقبة الخاص بي</title>
+    <title>نظام المراقبة الذكي 🛡️</title>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; background-color: #1a1a1a; color: white; padding: 20px; }
-        .video-container { position: relative; width: 100%; max-width: 500px; margin: auto; border: 4px solid #4CAF50; border-radius: 15px; overflow: hidden; background: black; }
-        video { width: 100%; display: block; }
-        .controls { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; align-items: center; }
-        button { padding: 12px 25px; font-size: 16px; cursor: pointer; border: none; border-radius: 8px; transition: 0.3s; width: 200px; }
-        .btn-start { background-color: #4CAF50; color: white; }
-        .btn-call { background-color: #2196F3; color: white; }
-        input { padding: 10px; border-radius: 5px; border: none; width: 180px; text-align: center; }
-        .status { margin: 10px; color: #ffeb3b; font-weight: bold; }
+        :root { --primary: #00e676; --secondary: #2196F3; --bg: #121212; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background-color: var(--bg); color: white; text-align: center; padding: 20px; margin: 0; }
+        .container { max-width: 500px; margin: auto; }
+        .video-box { position: relative; width: 100%; aspect-ratio: 4/3; background: #000; border: 3px solid #333; border-radius: 15px; overflow: hidden; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        video { width: 100%; height: 100%; object-fit: cover; }
+        .id-section { background: #1e1e1e; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #333; }
+        .peer-id { color: var(--primary); font-family: monospace; font-size: 1.1em; word-break: break-all; cursor: pointer; }
+        .btn { padding: 15px 25px; font-size: 16px; font-weight: bold; cursor: pointer; border: none; border-radius: 8px; transition: 0.3s; width: 100%; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-start { background-color: var(--primary); color: #000; }
+        .btn-call { background-color: var(--secondary); color: white; }
+        input { width: 90%; padding: 12px; border-radius: 8px; border: 1px solid #444; background: #252525; color: white; text-align: center; margin-bottom: 10px; font-size: 16px; }
+        .status { font-size: 0.9em; color: #bbb; margin-bottom: 10px; height: 20px; }
+        hr { border: 0; border-top: 1px dotted #444; margin: 20px 0; }
     </style>
 </head>
 <body>
 
-    <h2>نظام مراقبة HTML 🛡️</h2>
+<div class="container">
+    <h2>نظام مراقبة مباشر 🎥</h2>
     
-    <div class="status" id="status">جاري الاتصال بالسيرفر...</div>
-    <div id="myIdDisplay">معرف الجهاز الخاص بك: <span id="peer-id" style="color:#00e676">---</span></div>
+    <div class="status" id="status">جاري تهيئة النظام...</div>
 
-    <div class="video-container">
-        <video id="remoteVideo" autoplay playsinline></video>
+    <div class="video-box">
+        <video id="displayVideo" autoplay playsinline muted></video>
     </div>
 
-    <div class="controls">
-        <button class="btn-start" onclick="startCamera()">1. بدء البث من هذا الهاتف</button>
-        
-        <hr style="width: 80%; border: 0.5px solid #444;">
-
-        <p>لمشاهدة بث هاتف آخر، أدخل معرفه هنا:</p>
-        <input type="text" id="remotePeerId" placeholder="أدخل معرف الكاميرا">
-        <button class="btn-call" onclick="connectToCamera()">2. عرض البث الآن</button>
+    <div class="id-section">
+        <div>معرف هذا الجهاز (اضغط للنسخ):</div>
+        <div class="peer-id" id="peer-id" onclick="copyId()">... جاري التحميل ...</div>
     </div>
 
-    <script>
-        const statusText = document.getElementById('status');
-        const peerIdDisplay = document.getElementById('peer-id');
-        const remoteVideo = document.getElementById('remoteVideo');
-        let localStream;
+    <button class="btn btn-start" onclick="setupCamera()">
+        <span>📷</span> تشغيل الكاميرا من هذا الهاتف
+    </button>
 
-        // إنشاء اتصال Peer جديد (سيعطيك ID تلقائي)
-        const peer = new Peer();
+    <hr>
 
-        // عند فتح الصفحة، يعطيك السيرفر ID خاص بهذا الهاتف
-        peer.on('open', (id) => {
-            peerIdDisplay.innerText = id;
-            statusText.innerText = "جاهز للاتصال";
-        });
+    <p>لمشاهدة هاتف آخر، أدخل معرفه:</p>
+    <input type="text" id="remotePeerId" placeholder="أدخل ID الكاميرا هنا">
+    <button class="btn btn-call" onclick="startViewing()">
+        <span>👁️</span> عرض البث الآن
+    </button>
+</div>
 
-        // هاتف الكاميرا: تشغيل الكاميرا وانتظار اتصال الهاتف الآخر
-        async function startCamera() {
-            try {
-                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                // عرض الفيديو الخاص بك محلياً للتأكد
-                remoteVideo.srcObject = localStream;
-                statusText.innerText = "الكاميرا تعمل.. في انتظار المشاهد";
+<script>
+    const statusText = document.getElementById('status');
+    const peerIdDisplay = document.getElementById('peer-id');
+    const videoElement = document.getElementById('displayVideo');
+    let myStream;
 
-                // عندما يتصل بك شخص ما (هاتف المشاهد)
-                peer.on('call', (call) => {
-                    call.answer(localStream); // إرسال البث له
-                    statusText.innerText = "متصل الآن ويتم البث!";
-                });
-            } catch (err) {
-                alert("خطأ في الوصول للكاميرا: " + err);
-            }
-        }
+    // 1. إنشاء الاتصال
+    const peer = new Peer();
 
-        // هاتف المشاهد: الاتصال بهاتف الكاميرا باستخدام الـ ID
-        function connectToCamera() {
-            const remoteId = document.getElementById('remotePeerId').value;
-            if (!remoteId) return alert("من فضلك أدخل معرف الكاميرا أولاً");
+    peer.on('open', (id) => {
+        peerIdDisplay.innerText = id;
+        statusText.innerText = "جاهز للاتصال ✅";
+    });
 
-            statusText.innerText = "جاري الاتصال بالكاميرا...";
-            const call = peer.call(remoteId, null); // طلب البث (بدون إرسال كاميرا المشاهد)
+    peer.on('error', (err) => {
+        console.error(err);
+        statusText.innerText = "حدث خطأ في الاتصال!";
+        alert("خطأ: " + err.type);
+    });
 
-            call.on('stream', (stream) => {
-                remoteVideo.srcObject = stream; // عرض فيديو الكاميرا البعيدة
-                statusText.innerText = "أنت تشاهد البث المباشر الآن";
+    // 2. وظيفة الكاميرا (للهاتف الذي سيراقب)
+    async function setupCamera() {
+        try {
+            statusText.innerText = "جاري طلب إذن الكاميرا...";
+            myStream = await navigator.mediaDevices.getUserMedia({ 
+                video: { facingMode: "environment" }, // محاولة فتح الكاميرا الخلفية تلقائياً
+                audio: true 
             });
+            
+            videoElement.srcObject = myStream;
+            statusText.innerText = "الكاميرا تعمل.. في انتظار المشاهد 📡";
+
+            // استقبال المكالمات (البث)
+            peer.on('call', (call) => {
+                statusText.innerText = "هناك شخص يشاهد البث الآن!";
+                call.answer(myStream); 
+            });
+
+        } catch (err) {
+            statusText.innerText = "فشل فتح الكاميرا!";
+            alert("تأكد من إعطاء إذن الكاميرا للمتصفح");
         }
-    </script>
+    }
+
+    // 3. وظيفة المشاهدة (للهاتف الذي سيراقب منه)
+    function startViewing() {
+        const remoteId = document.getElementById('remotePeerId').value;
+        if (!remoteId) return alert("يرجى إدخال المعرف أولاً");
+
+        statusText.innerText = "جاري الاتصال...";
+        const call = peer.call(remoteId, null);
+
+        call.on('stream', (remoteStream) => {
+            statusText.innerText = "متصل بالبث المباشر 🟢";
+            videoElement.srcObject = remoteStream;
+            // تفعيل الصوت عند المشاهدة
+            videoElement.muted = false; 
+        });
+    }
+
+    // وظيفة النسخ السريع
+    function copyId() {
+        const id = peerIdDisplay.innerText;
+        navigator.clipboard.writeText(id);
+        alert("تم نسخ المعرف: " + id);
+    }
+</script>
+
 </body>
 </html>
+
