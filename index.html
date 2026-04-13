@@ -1,116 +1,171 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام مراقبة مباشر - يعمل دائماً</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>نظام مراقبة مباشر - Vdo.Ninja</title>
     <style>
         * {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
         }
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #141e30 0%, #243b55 100%);
             color: white;
             text-align: center;
             padding: 15px;
-            margin: 0;
             min-height: 100vh;
         }
+        
         .container {
             max-width: 600px;
             margin: 0 auto;
         }
+        
         h1 {
             font-size: 1.8rem;
             margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
-        .video-container {
-            background: #000;
-            border-radius: 20px;
-            overflow: hidden;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-            position: relative;
-        }
-        video {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-        .controls {
+        
+        .mode-selector {
             display: flex;
             gap: 15px;
-            flex-wrap: wrap;
-            justify-content: center;
             margin-bottom: 20px;
+            flex-wrap: wrap;
         }
-        button {
-            padding: 15px 25px;
+        
+        .mode-btn {
+            flex: 1;
+            padding: 15px;
             font-size: 1rem;
             font-weight: bold;
             border: none;
             border-radius: 50px;
             cursor: pointer;
             transition: transform 0.2s, opacity 0.2s;
-            flex: 1;
-            min-width: 150px;
+            background: #1e1e2e;
+            color: white;
+            border: 2px solid #00e676;
         }
-        button:active {
-            transform: scale(0.98);
-        }
-        .btn-green {
+        
+        .mode-btn.active {
             background: #00e676;
             color: #000;
+            border-color: #00e676;
         }
-        .btn-blue {
-            background: #2196f3;
-            color: #fff;
+        
+        .mode-btn:active {
+            transform: scale(0.98);
         }
-        .btn-red {
-            background: #f44336;
-            color: #fff;
+        
+        .video-container {
+            background: #000;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            aspect-ratio: 4/3;
         }
+        
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
         .info-box {
             background: rgba(255,255,255,0.1);
             border-radius: 15px;
             padding: 15px;
             margin: 15px 0;
-            word-break: break-all;
         }
-        .link-box {
-            background: #1a1a2e;
-            border: 2px solid #00e676;
-            border-radius: 10px;
+        
+        .room-id-section {
+            background: #1e1e2e;
+            border-radius: 15px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .room-id {
+            background: #2a2a3e;
             padding: 12px;
-            margin: 10px 0;
+            border-radius: 10px;
             font-family: monospace;
-            font-size: 12px;
+            font-size: 1.1rem;
             word-break: break-all;
             cursor: pointer;
+            margin: 10px 0;
+            border: 1px solid #00e676;
         }
-        .status {
-            background: rgba(0,0,0,0.7);
-            border-radius: 10px;
-            padding: 12px;
-            margin: 15px 0;
-            font-size: 14px;
+        
+        button {
+            padding: 12px 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin: 5px;
         }
+        
+        .btn-green {
+            background: #00e676;
+            color: #000;
+        }
+        
+        .btn-blue {
+            background: #2196f3;
+            color: #fff;
+        }
+        
+        .btn-gray {
+            background: #555;
+            color: #fff;
+        }
+        
         input {
             width: 100%;
             padding: 12px;
             border-radius: 10px;
             border: none;
             margin: 10px 0;
-            font-size: 14px;
+            font-size: 1rem;
             text-align: center;
+            background: #2a2a3e;
+            color: white;
+            border: 1px solid #444;
         }
+        
+        .status {
+            background: rgba(0,0,0,0.7);
+            border-radius: 10px;
+            padding: 12px;
+            margin: 15px 0;
+            font-size: 0.9rem;
+        }
+        
         hr {
             border-color: #444;
             margin: 20px 0;
         }
+        
+        .note {
+            font-size: 0.8rem;
+            color: #aaa;
+            margin-top: 20px;
+        }
+        
         @media (max-width: 500px) {
-            button { padding: 12px 15px; font-size: 14px; min-width: 120px; }
+            .mode-btn { padding: 12px; font-size: 0.9rem; }
             h1 { font-size: 1.4rem; }
         }
     </style>
@@ -118,286 +173,202 @@
 <body>
 
 <div class="container">
-    <h1>📹 نظام مراقبة مباشر</h1>
+    <h1>
+        <span>🎥</span> نظام مراقبة مباشر
+    </h1>
     
-    <div class="video-container">
-        <video id="localVideo" autoplay playsinline muted style="display: none;"></video>
-        <video id="remoteVideo" autoplay playsinline></video>
+    <!-- وضع التشغيل -->
+    <div class="mode-selector">
+        <button class="mode-btn active" id="cameraModeBtn" onclick="setMode('camera')">📷 كاميرا (مراقبة)</button>
+        <button class="mode-btn" id="viewerModeBtn" onclick="setMode('viewer')">👁️ مشاهدة</button>
     </div>
-
-    <div class="controls">
-        <button class="btn-green" id="startBtn">📷 تشغيل الكاميرا</button>
-        <button class="btn-blue" id="stopBtn" disabled>⏹️ إيقاف الكاميرا</button>
+    
+    <!-- حاوية الفيديو (iframe) -->
+    <div class="video-container" id="videoContainer">
+        <iframe id="vdoIframe" allow="camera *;microphone *;autoplay;display-capture;fullscreen;picture-in-picture"></iframe>
     </div>
-
-    <div class="status" id="status">
-        🔴 النظام جاهز - اضغط "تشغيل الكاميرا" لبدء البث
-    </div>
-
-    <hr>
-
-    <div id="broadcastSection" style="display: none;">
-        <h3>📤 رابط البث الخاص بك (أرسله للمشاهد):</h3>
-        <div class="link-box" id="linkBox" onclick="copyLink()">
-            جاري إنشاء الرابط...
+    
+    <!-- معلومات الغرفة -->
+    <div class="room-id-section" id="roomInfoSection">
+        <div>🏠 <strong>معرف الغرفة الحالي:</strong></div>
+        <div class="room-id" id="roomIdDisplay" onclick="copyRoomId()">
+            جاري الإنشاء...
         </div>
-        <button class="btn-blue" onclick="copyLink()">📋 نسخ الرابط</button>
+        <button class="btn-green" onclick="copyRoomId()">📋 نسخ معرف الغرفة</button>
+        <button class="btn-blue" onclick="generateNewRoom()">🔄 غرفة جديدة</button>
     </div>
-
-    <div id="watchSection">
-        <h3>👀 مشاهدة كاميرا أخرى:</h3>
-        <input type="text" id="remoteLink" placeholder="الصق رابط البث هنا">
-        <button class="btn-blue" onclick="watchCamera()">🔗 مشاهدة البث</button>
+    
+    <!-- قسم المشاهدة (يظهر فقط في وضع المشاهد) -->
+    <div id="viewerSection" style="display: none;">
+        <hr>
+        <h3>👀 مشاهدة كاميرا أخرى</h3>
+        <input type="text" id="remoteRoomId" placeholder="أدخل معرف غرفة المراقبة هنا">
+        <button class="btn-blue" onclick="joinRoom()">🔗 الاتصال بالغرفة</button>
     </div>
-
+    
+    <!-- الحالة -->
+    <div class="status" id="status">
+        ✅ النظام جاهز - اختر وضع التشغيل
+    </div>
+    
     <div class="info-box">
         💡 <strong>طريقة الاستخدام:</strong><br>
-        1️⃣ جهاز المراقبة: اضغط "تشغيل الكاميرا" ← انسخ الرابط ← أرسله للمشاهد<br>
-        2️⃣ جهاز المشاهدة: الصق الرابط ← اضغط "مشاهدة البث"
+        <strong>جهاز المراقبة (الكاميرا):</strong> اختر وضع "كاميرا" ← انسخ معرف الغرفة ← أرسله للمشاهد<br>
+        <strong>جهاز المشاهدة:</strong> اختر وضع "مشاهدة" ← الصق المعرف ← اضغط "الاتصال بالغرفة"
+    </div>
+    
+    <div class="note">
+        🔒 يعمل عبر Vdo.Ninja - تقنية WebRTC آمنة ومباشرة بين الأجهزة
     </div>
 </div>
 
 <script>
     // عناصر الصفحة
-    const localVideo = document.getElementById('localVideo');
-    const remoteVideo = document.getElementById('remoteVideo');
+    const vdoIframe = document.getElementById('vdoIframe');
+    const roomIdDisplay = document.getElementById('roomIdDisplay');
     const statusDiv = document.getElementById('status');
-    const startBtn = document.getElementById('startBtn');
-    const stopBtn = document.getElementById('stopBtn');
-    const broadcastSection = document.getElementById('broadcastSection');
-    const linkBox = document.getElementById('linkBox');
-    const remoteLinkInput = document.getElementById('remoteLink');
-
-    let localStream = null;
-    let peerConnection = null;
-    let currentRoomId = null;
-
-    // إعدادات خادم STUN (للتغلب على جدران الحماية)
-    const configuration = {
-        iceServers: [
-            { urls: 'stun:stun.l.google.com:19302' },
-            { urls: 'stun:stun1.l.google.com:19302' },
-            { urls: 'stun:stun2.l.google.com:19302' },
-            { urls: 'stun:stun3.l.google.com:19302' },
-            { urls: 'stun:stun4.l.google.com:19302' }
-        ]
-    };
-
-    // إنشاء رابط فريد
+    const cameraModeBtn = document.getElementById('cameraModeBtn');
+    const viewerModeBtn = document.getElementById('viewerModeBtn');
+    const roomInfoSection = document.getElementById('roomInfoSection');
+    const viewerSection = document.getElementById('viewerSection');
+    
+    let currentMode = 'camera'; // 'camera' or 'viewer'
+    let currentRoomId = '';
+    
+    // إنشاء معرف غرفة عشوائي
     function generateRoomId() {
-        return 'cam_' + Math.random().toString(36).substring(2, 15) + '_' + Date.now().toString(36);
-    }
-
-    // تشغيل الكاميرا
-    async function startCamera() {
-        try {
-            statusDiv.innerHTML = '📷 جاري طلب إذن الكاميرا...';
-            
-            if (localStream) {
-                stopTracks(localStream);
-            }
-
-            localStream = await navigator.mediaDevices.getUserMedia({ 
-                video: { facingMode: "user" }, 
-                audio: true 
-            });
-            
-            localVideo.srcObject = localStream;
-            localVideo.style.display = 'block';
-            remoteVideo.style.display = 'none';
-            
-            statusDiv.innerHTML = '✅ الكاميرا تعمل. جاري إنشاء رابط البث...';
-            
-            // إنشاء غرفة جديدة
-            currentRoomId = generateRoomId();
-            await createOffer(currentRoomId);
-            
-            startBtn.disabled = true;
-            stopBtn.disabled = false;
-            broadcastSection.style.display = 'block';
-            
-        } catch (error) {
-            console.error(error);
-            statusDiv.innerHTML = '❌ فشل تشغيل الكاميرا: ' + error.message;
-        }
-    }
-
-    // إيقاف الكاميرا
-    function stopCamera() {
-        if (localStream) {
-            stopTracks(localStream);
-            localStream = null;
-        }
-        if (peerConnection) {
-            peerConnection.close();
-            peerConnection = null;
-        }
-        localVideo.style.display = 'none';
-        localVideo.srcObject = null;
-        remoteVideo.style.display = 'block';
-        
-        startBtn.disabled = false;
-        stopBtn.disabled = true;
-        broadcastSection.style.display = 'none';
-        currentRoomId = null;
-        
-        statusDiv.innerHTML = '🔴 تم إيقاف الكاميرا';
-    }
-
-    // إيقاف المسارات
-    function stopTracks(stream) {
-        stream.getTracks().forEach(track => track.stop());
-    }
-
-    // إنشاء عرض (للجهاز الباث)
-    async function createOffer(roomId) {
-        if (peerConnection) {
-            peerConnection.close();
-        }
-        
-        peerConnection = new RTCPeerConnection(configuration);
-        
-        // إضافة مسارات الفيديو والصوت
-        localStream.getTracks().forEach(track => {
-            peerConnection.addTrack(track, localStream);
-        });
-        
-        // تخزين المرشحات
-        let candidates = [];
-        
-        peerConnection.onicecandidate = (event) => {
-            if (event.candidate) {
-                candidates.push(event.candidate);
-                updateLink(roomId, peerConnection.localDescription.sdp, candidates);
-            }
-        };
-        
-        peerConnection.onconnectionstatechange = () => {
-            if (peerConnection.connectionState === 'connected') {
-                statusDiv.innerHTML = '🟢 هناك مشاهد يتصل بك الآن!';
-            } else if (peerConnection.connectionState === 'disconnected') {
-                statusDiv.innerHTML = '⚠️ انقطع الاتصال بالمشاهد';
-            }
-        };
-        
-        // إنشاء العرض
-        const offer = await peerConnection.createOffer();
-        await peerConnection.setLocalDescription(offer);
-        
-        updateLink(roomId, offer.sdp, candidates);
+        return 'room_' + Math.random().toString(36).substring(2, 12) + '_' + Date.now().toString(36);
     }
     
-    // تحديث الرابط المعروض
-    function updateLink(roomId, sdp, candidates) {
-        const data = {
-            roomId: roomId,
-            sdp: sdp,
-            candidates: candidates
-        };
+    // تحديث رابط Vdo.Ninja بناءً على الوضع والمعرف
+    function updateIframe() {
+        let iframeSrc = '';
         
-        const encoded = btoa(JSON.stringify(data));
-        const link = window.location.href.split('#')[0] + '#room=' + encoded;
-        linkBox.innerHTML = link;
-        linkBox.setAttribute('data-link', link);
-    }
-    
-    // نسخ الرابط
-    function copyLink() {
-        const link = linkBox.getAttribute('data-link');
-        if (link && link !== 'جاري إنشاء الرابط...') {
-            navigator.clipboard.writeText(link);
-            statusDiv.innerHTML = '📋 تم نسخ الرابط! أرسله للمشاهد';
-            alert('✅ تم نسخ الرابط\nأرسله إلى الشخص الذي يريد مشاهدة الكاميرا');
+        if (currentMode === 'camera') {
+            // وضع الكاميرا: رابط push (بث)
+            iframeSrc = `https://vdo.ninja/?push=${currentRoomId}&webcam&autostart&cleanoutput&transparent&label=كاميرا&codec=vp9`;
         } else {
-            alert('⚠️ انتظر حتى يتم إنشاء الرابط');
+            // وضع المشاهدة: رابط view (مشاهدة)
+            iframeSrc = `https://vdo.ninja/?view=${currentRoomId}&cleanoutput&transparent&label=مشاهدة&codec=vp9`;
+        }
+        
+        // إعداد صلاحيات iframe
+        vdoIframe.allow = "camera *;microphone *;autoplay;display-capture;fullscreen;picture-in-picture;encrypted-media;geolocation;";
+        vdoIframe.src = iframeSrc;
+        
+        console.log(`Iframe updated: ${iframeSrc}`);
+    }
+    
+    // إنشاء غرفة جديدة
+    function generateNewRoom() {
+        if (currentMode === 'camera') {
+            currentRoomId = generateRoomId();
+            roomIdDisplay.innerText = currentRoomId;
+            updateIframe();
+            statusDiv.innerHTML = `✅ تم إنشاء غرفة جديدة: ${currentRoomId}<br>أرسل هذا المعرف لجهاز المشاهدة`;
+        } else {
+            // في وضع المشاهدة، نقوم بمسح الحقل
+            document.getElementById('remoteRoomId').value = '';
+            statusDiv.innerHTML = `📱 أدخل معرف غرفة المراقبة في الحقل أعلاه`;
         }
     }
     
-    // مشاهدة كاميرا (للمشاهد)
-    async function watchCamera() {
-        const link = remoteLinkInput.value.trim();
+    // نسخ معرف الغرفة
+    function copyRoomId() {
+        if (currentRoomId && currentMode === 'camera') {
+            navigator.clipboard.writeText(currentRoomId);
+            statusDiv.innerHTML = `✅ تم نسخ معرف الغرفة: ${currentRoomId}`;
+            alert('✅ تم نسخ معرف الغرفة\nأرسله إلى جهاز المشاهدة');
+        } else if (currentMode === 'camera' && !currentRoomId) {
+            generateNewRoom();
+            setTimeout(() => copyRoomId(), 500);
+        } else {
+            alert('⚠️ أنت في وضع المشاهدة، لا يمكن نسخ معرف لأنك لست المراقب');
+        }
+    }
+    
+    // الانضمام إلى غرفة (للمشاهد)
+    function joinRoom() {
+        const remoteId = document.getElementById('remoteRoomId').value.trim();
         
-        if (!link) {
-            alert('⚠️ الرجاء لصق رابط البث');
+        if (!remoteId) {
+            alert('⚠️ يرجى إدخال معرف الغرفة');
             return;
         }
         
-        try {
-            statusDiv.innerHTML = '🔄 جاري الاتصال بالكاميرا...';
+        currentRoomId = remoteId;
+        roomIdDisplay.innerText = currentRoomId;
+        updateIframe();
+        statusDiv.innerHTML = `🟢 جاري الاتصال بالغرفة: ${remoteId}...`;
+    }
+    
+    // تغيير الوضع (كاميرا / مشاهدة)
+    function setMode(mode) {
+        currentMode = mode;
+        
+        // تحديث شكل الأزرار
+        if (mode === 'camera') {
+            cameraModeBtn.classList.add('active');
+            viewerModeBtn.classList.remove('active');
+            roomInfoSection.style.display = 'block';
+            viewerSection.style.display = 'none';
+            statusDiv.innerHTML = '📷 وضع الكاميرا - أنت تنشر البث';
             
-            // استخراج البيانات من الرابط
-            let encoded;
-            if (link.includes('#room=')) {
-                encoded = link.split('#room=')[1];
+            // إنشاء غرفة جديدة إذا لم تكن موجودة
+            if (!currentRoomId) {
+                generateNewRoom();
             } else {
-                encoded = link;
+                roomIdDisplay.innerText = currentRoomId;
+                updateIframe();
             }
+        } else {
+            cameraModeBtn.classList.remove('active');
+            viewerModeBtn.classList.add('active');
+            roomInfoSection.style.display = 'block';
+            viewerSection.style.display = 'block';
+            statusDiv.innerHTML = '👁️ وضع المشاهدة - أدخل معرف الغرفة لمشاهدة الكاميرا';
             
-            const data = JSON.parse(atob(encoded));
+            // إعادة تعيين المعرف
+            currentRoomId = '';
+            roomIdDisplay.innerText = '(أدخل معرف الغرفة أعلاه)';
             
-            if (peerConnection) {
-                peerConnection.close();
-            }
-            
-            peerConnection = new RTCPeerConnection(configuration);
-            
-            // استقبال الفيديو
-            peerConnection.ontrack = (event) => {
-                if (event.streams && event.streams[0]) {
-                    remoteVideo.srcObject = event.streams[0];
-                    remoteVideo.style.display = 'block';
-                    localVideo.style.display = 'none';
-                    statusDiv.innerHTML = '🟢 متصل! يتم عرض الكاميرا';
-                }
-            };
-            
-            peerConnection.oniceconnectionstatechange = () => {
-                if (peerConnection.iceConnectionState === 'failed') {
-                    statusDiv.innerHTML = '❌ فشل الاتصال. حاول مرة أخرى';
-                }
-            };
-            
-            // إضافة المرشحات المحفوظة
-            if (data.candidates && data.candidates.length) {
-                for (const candidate of data.candidates) {
-                    try {
-                        await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
-                    } catch(e) { console.log(e); }
-                }
-            }
-            
-            // تعيين الوصف البعيد
-            await peerConnection.setRemoteDescription(new RTCSessionDescription({
-                type: 'offer',
-                sdp: data.sdp
-            }));
-            
-            // إنشاء الإجابة
-            const answer = await peerConnection.createAnswer();
-            await peerConnection.setLocalDescription(answer);
-            
-            // يمكن إرسال الإجابة عبر console فقط (للتطوير)
-            console.log('Answer created:', answer);
-            
-        } catch (error) {
-            console.error(error);
-            statusDiv.innerHTML = '❌ فشل الاتصال: ' + error.message;
-            alert('فشل الاتصال. تأكد من أن جهاز المراقبة لا يزال يبث');
+            // تحديث iframe (سيكون رابط view بدون معرف حتى يدخل المستخدم)
+            vdoIframe.src = 'https://vdo.ninja/?cleanoutput&transparent';
         }
     }
     
-    // التحقق من وجود رابط في URL عند التحميل
-    window.addEventListener('load', () => {
-        if (window.location.hash && window.location.hash.includes('#room=')) {
-            const roomLink = window.location.href;
-            remoteLinkInput.value = roomLink;
-            statusDiv.innerHTML = '📲 تم اكتشاف رابط بث! اضغط "مشاهدة البث"';
+    // الاستماع لرسائل من iframe (للحصول على حالة الاتصال)
+    window.addEventListener('message', function(event) {
+        if (event.source !== vdoIframe.contentWindow) return;
+        
+        const data = event.data;
+        
+        if (data && data.stats) {
+            // تحديث الحالة عند وجود اتصال
+            if (data.stats.total_inbound_connections > 0 || data.stats.total_outbound_connections > 0) {
+                if (currentMode === 'camera') {
+                    statusDiv.innerHTML = '🟢 هناك مشاهد يتصل بك الآن! البث يعمل ✅';
+                } else {
+                    statusDiv.innerHTML = '🟢 متصل بالكاميرا! يتم عرض البث ✅';
+                }
+            }
+        }
+        
+        if (data && data.gotChat) {
+            console.log('Chat message:', data.gotChat);
         }
     });
     
-    // ربط الأزرار
-    startBtn.onclick = startCamera;
-    stopBtn.onclick = stopCamera;
+    // تهيئة الصفحة
+    function init() {
+        currentRoomId = generateRoomId();
+        roomIdDisplay.innerText = currentRoomId;
+        updateIframe();
+        statusDiv.innerHTML = `✅ النظام جاهز! معرف الغرفة: ${currentRoomId}<br>أرسل هذا المعرف للجهاز الآخر`;
+    }
+    
+    // بدء التشغيل
+    init();
 </script>
 
 </body>
