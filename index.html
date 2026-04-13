@@ -1,54 +1,159 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام مراقبة مباشر - نسخة تعمل دائماً</title>
+    <title>نظام مراقبة مباشر - يعمل دائماً</title>
     <style>
-        :root { --primary: #00e676; --secondary: #2196F3; --bg: #121212; }
-        body { font-family: Arial, sans-serif; background: var(--bg); color: white; text-align: center; padding: 20px; margin: 0; }
-        .container { max-width: 500px; margin: auto; }
-        .video-box { background: #000; border-radius: 15px; overflow: hidden; margin-bottom: 20px; }
-        video { width: 100%; aspect-ratio: 4/3; object-fit: cover; background: #000; }
-        .btn { padding: 15px; font-size: 16px; font-weight: bold; border: none; border-radius: 10px; cursor: pointer; width: 100%; margin: 10px 0; }
-        .btn-start { background: var(--primary); color: #000; }
-        .btn-call { background: var(--secondary); color: white; }
-        input, textarea { width: 90%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #444; background: #252525; color: white; text-align: center; }
-        .status { background: #1e1e1e; padding: 12px; border-radius: 10px; margin: 10px 0; font-size: 14px; }
-        .peer-id { background: #2a2a2a; padding: 15px; border-radius: 10px; word-break: break-all; font-family: monospace; cursor: pointer; }
-        hr { margin: 20px 0; border-color: #444; }
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #141e30 0%, #243b55 100%);
+            color: white;
+            text-align: center;
+            padding: 15px;
+            margin: 0;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+        }
+        .video-container {
+            background: #000;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            position: relative;
+        }
+        video {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .controls {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 15px 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, opacity 0.2s;
+            flex: 1;
+            min-width: 150px;
+        }
+        button:active {
+            transform: scale(0.98);
+        }
+        .btn-green {
+            background: #00e676;
+            color: #000;
+        }
+        .btn-blue {
+            background: #2196f3;
+            color: #fff;
+        }
+        .btn-red {
+            background: #f44336;
+            color: #fff;
+        }
+        .info-box {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 15px;
+            margin: 15px 0;
+            word-break: break-all;
+        }
+        .link-box {
+            background: #1a1a2e;
+            border: 2px solid #00e676;
+            border-radius: 10px;
+            padding: 12px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 12px;
+            word-break: break-all;
+            cursor: pointer;
+        }
+        .status {
+            background: rgba(0,0,0,0.7);
+            border-radius: 10px;
+            padding: 12px;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: none;
+            margin: 10px 0;
+            font-size: 14px;
+            text-align: center;
+        }
+        hr {
+            border-color: #444;
+            margin: 20px 0;
+        }
+        @media (max-width: 500px) {
+            button { padding: 12px 15px; font-size: 14px; min-width: 120px; }
+            h1 { font-size: 1.4rem; }
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>🎥 نظام مراقبة مباشر</h2>
+    <h1>📹 نظام مراقبة مباشر</h1>
     
-    <div class="status" id="status">⚡ جاهز - اختر وضع التشغيل</div>
-
-    <div class="video-box">
-        <video id="localVideo" autoplay playsinline muted style="display:none"></video>
+    <div class="video-container">
+        <video id="localVideo" autoplay playsinline muted style="display: none;"></video>
         <video id="remoteVideo" autoplay playsinline></video>
     </div>
 
-    <!-- قسم الكاميرا -->
-    <button class="btn btn-start" id="camBtn" onclick="startCamera()">📷 تشغيل الكاميرا (جهاز المراقبة)</button>
-    
+    <div class="controls">
+        <button class="btn-green" id="startBtn">📷 تشغيل الكاميرا</button>
+        <button class="btn-blue" id="stopBtn" disabled>⏹️ إيقاف الكاميرا</button>
+    </div>
+
+    <div class="status" id="status">
+        🔴 النظام جاهز - اضغط "تشغيل الكاميرا" لبدء البث
+    </div>
+
     <hr>
 
-    <!-- قسم المشاهدة -->
-    <p>👀 مشاهدة جهاز آخر:</p>
-    <textarea id="offerData" rows="3" placeholder="سيظهر رابط الاتصال هنا بعد تشغيل الكاميرا"></textarea>
-    <button class="btn btn-call" onclick="copyOffer()">📋 نسخ رابط الاتصال</button>
-    
-    <hr>
-    
-    <p>📥 أو الصق رابط الاتصال من الجهاز الآخر:</p>
-    <textarea id="answerData" rows="3" placeholder="الصق رابط الاتصال هنا"></textarea>
-    <button class="btn btn-call" onclick="connectToCamera()">🔗 الاتصال بالكاميرا</button>
+    <div id="broadcastSection" style="display: none;">
+        <h3>📤 رابط البث الخاص بك (أرسله للمشاهد):</h3>
+        <div class="link-box" id="linkBox" onclick="copyLink()">
+            جاري إنشاء الرابط...
+        </div>
+        <button class="btn-blue" onclick="copyLink()">📋 نسخ الرابط</button>
+    </div>
 
-    <div class="peer-id" id="infoBox" onclick="copyDebugInfo()">
-        📱 اضغط هنا لنسخ معلومات المساعدة
+    <div id="watchSection">
+        <h3>👀 مشاهدة كاميرا أخرى:</h3>
+        <input type="text" id="remoteLink" placeholder="الصق رابط البث هنا">
+        <button class="btn-blue" onclick="watchCamera()">🔗 مشاهدة البث</button>
+    </div>
+
+    <div class="info-box">
+        💡 <strong>طريقة الاستخدام:</strong><br>
+        1️⃣ جهاز المراقبة: اضغط "تشغيل الكاميرا" ← انسخ الرابط ← أرسله للمشاهد<br>
+        2️⃣ جهاز المشاهدة: الصق الرابط ← اضغط "مشاهدة البث"
     </div>
 </div>
 
@@ -57,62 +162,95 @@
     const localVideo = document.getElementById('localVideo');
     const remoteVideo = document.getElementById('remoteVideo');
     const statusDiv = document.getElementById('status');
-    const offerData = document.getElementById('offerData');
-    const answerData = document.getElementById('answerData');
-    const camBtn = document.getElementById('camBtn');
-    
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const broadcastSection = document.getElementById('broadcastSection');
+    const linkBox = document.getElementById('linkBox');
+    const remoteLinkInput = document.getElementById('remoteLink');
+
     let localStream = null;
     let peerConnection = null;
-    let isCameraOn = false;
-    
-    // إعدادات الاتصال - خوادم STUN عامة
+    let currentRoomId = null;
+
+    // إعدادات خادم STUN (للتغلب على جدران الحماية)
     const configuration = {
         iceServers: [
             { urls: 'stun:stun.l.google.com:19302' },
             { urls: 'stun:stun1.l.google.com:19302' },
             { urls: 'stun:stun2.l.google.com:19302' },
             { urls: 'stun:stun3.l.google.com:19302' },
-            { urls: 'stun:stun4.l.google.com:19302' },
-            { urls: 'stun:stun.ekiga.net' },
-            { urls: 'stun:stun.ideasip.com' }
+            { urls: 'stun:stun4.l.google.com:19302' }
         ]
     };
-    
-    // ========== تشغيل الكاميرا (جهاز المراقبة) ==========
+
+    // إنشاء رابط فريد
+    function generateRoomId() {
+        return 'cam_' + Math.random().toString(36).substring(2, 15) + '_' + Date.now().toString(36);
+    }
+
+    // تشغيل الكاميرا
     async function startCamera() {
         try {
-            statusDiv.innerText = "📷 جاري طلب إذن الكاميرا...";
+            statusDiv.innerHTML = '📷 جاري طلب إذن الكاميرا...';
             
             if (localStream) {
-                localStream.getTracks().forEach(track => track.stop());
+                stopTracks(localStream);
             }
-            
+
             localStream = await navigator.mediaDevices.getUserMedia({ 
-                video: { facingMode: "environment" }, 
+                video: { facingMode: "user" }, 
                 audio: true 
             });
             
             localVideo.srcObject = localStream;
-            localVideo.style.display = "block";
-            remoteVideo.style.display = "none";
-            isCameraOn = true;
+            localVideo.style.display = 'block';
+            remoteVideo.style.display = 'none';
             
-            statusDiv.innerText = "✅ الكاميرا تعمل - جاري إنشاء رابط الاتصال...";
+            statusDiv.innerHTML = '✅ الكاميرا تعمل. جاري إنشاء رابط البث...';
             
-            // إنشاء اتصال جديد
-            await createOffer();
+            // إنشاء غرفة جديدة
+            currentRoomId = generateRoomId();
+            await createOffer(currentRoomId);
             
-            camBtn.disabled = true;
-            camBtn.style.opacity = "0.7";
+            startBtn.disabled = true;
+            stopBtn.disabled = false;
+            broadcastSection.style.display = 'block';
             
-        } catch (err) {
-            statusDiv.innerText = "❌ خطأ: " + (err.message || "لا يمكن الوصول للكاميرا");
-            console.error(err);
+        } catch (error) {
+            console.error(error);
+            statusDiv.innerHTML = '❌ فشل تشغيل الكاميرا: ' + error.message;
         }
     }
-    
-    // ========== إنشاء عرض (Offer) للجهاز الآخر ==========
-    async function createOffer() {
+
+    // إيقاف الكاميرا
+    function stopCamera() {
+        if (localStream) {
+            stopTracks(localStream);
+            localStream = null;
+        }
+        if (peerConnection) {
+            peerConnection.close();
+            peerConnection = null;
+        }
+        localVideo.style.display = 'none';
+        localVideo.srcObject = null;
+        remoteVideo.style.display = 'block';
+        
+        startBtn.disabled = false;
+        stopBtn.disabled = true;
+        broadcastSection.style.display = 'none';
+        currentRoomId = null;
+        
+        statusDiv.innerHTML = '🔴 تم إيقاف الكاميرا';
+    }
+
+    // إيقاف المسارات
+    function stopTracks(stream) {
+        stream.getTracks().forEach(track => track.stop());
+    }
+
+    // إنشاء عرض (للجهاز الباث)
+    async function createOffer(roomId) {
         if (peerConnection) {
             peerConnection.close();
         }
@@ -124,22 +262,21 @@
             peerConnection.addTrack(track, localStream);
         });
         
-        // جمع المرشحات (ICE candidates)
+        // تخزين المرشحات
         let candidates = [];
+        
         peerConnection.onicecandidate = (event) => {
             if (event.candidate) {
                 candidates.push(event.candidate);
-                saveOfferToClipboard();
+                updateLink(roomId, peerConnection.localDescription.sdp, candidates);
             }
         };
         
-        // مراقبة الاتصال
         peerConnection.onconnectionstatechange = () => {
-            console.log("Connection state:", peerConnection.connectionState);
             if (peerConnection.connectionState === 'connected') {
-                statusDiv.innerText = "🟢 متصل! شخص يشاهد الكاميرا الآن";
+                statusDiv.innerHTML = '🟢 هناك مشاهد يتصل بك الآن!';
             } else if (peerConnection.connectionState === 'disconnected') {
-                statusDiv.innerText = "⚠️ انقطع الاتصال";
+                statusDiv.innerHTML = '⚠️ انقطع الاتصال بالمشاهد';
             }
         };
         
@@ -147,44 +284,56 @@
         const offer = await peerConnection.createOffer();
         await peerConnection.setLocalDescription(offer);
         
-        // حفظ العرض مع المرشحات
-        function saveOfferToClipboard() {
-            const offerDataToSend = {
-                type: 'offer',
-                sdp: peerConnection.localDescription.sdp,
-                candidates: candidates
-            };
-            
-            const encodedData = btoa(JSON.stringify(offerDataToSend));
-            const fullUrl = window.location.href.split('#')[0] + '#data=' + encodedData;
-            offerData.value = fullUrl;
-            statusDiv.innerText = "✅ رابط الاتصال جاهز! انسخه وأرسله للمشاهد";
-        }
-        
-        setTimeout(saveOfferToClipboard, 1000);
+        updateLink(roomId, offer.sdp, candidates);
     }
     
-    // ========== الاتصال بكاميرا أخرى (جهاز المشاهدة) ==========
-    async function connectToCamera() {
-        let pasteData = answerData.value.trim();
+    // تحديث الرابط المعروض
+    function updateLink(roomId, sdp, candidates) {
+        const data = {
+            roomId: roomId,
+            sdp: sdp,
+            candidates: candidates
+        };
         
-        if (!pasteData) {
-            statusDiv.innerText = "⚠️ الصق رابط الاتصال أولاً";
+        const encoded = btoa(JSON.stringify(data));
+        const link = window.location.href.split('#')[0] + '#room=' + encoded;
+        linkBox.innerHTML = link;
+        linkBox.setAttribute('data-link', link);
+    }
+    
+    // نسخ الرابط
+    function copyLink() {
+        const link = linkBox.getAttribute('data-link');
+        if (link && link !== 'جاري إنشاء الرابط...') {
+            navigator.clipboard.writeText(link);
+            statusDiv.innerHTML = '📋 تم نسخ الرابط! أرسله للمشاهد';
+            alert('✅ تم نسخ الرابط\nأرسله إلى الشخص الذي يريد مشاهدة الكاميرا');
+        } else {
+            alert('⚠️ انتظر حتى يتم إنشاء الرابط');
+        }
+    }
+    
+    // مشاهدة كاميرا (للمشاهد)
+    async function watchCamera() {
+        const link = remoteLinkInput.value.trim();
+        
+        if (!link) {
+            alert('⚠️ الرجاء لصق رابط البث');
             return;
         }
         
         try {
-            statusDiv.innerText = "🔄 جاري الاتصال بالكاميرا...";
+            statusDiv.innerHTML = '🔄 جاري الاتصال بالكاميرا...';
             
             // استخراج البيانات من الرابط
-            let encodedData;
-            if (pasteData.includes('#data=')) {
-                encodedData = pasteData.split('#data=')[1];
+            let encoded;
+            if (link.includes('#room=')) {
+                encoded = link.split('#room=')[1];
             } else {
-                encodedData = pasteData;
+                encoded = link;
             }
             
-            const offerDataObj = JSON.parse(atob(encodedData));
+            const data = JSON.parse(atob(encoded));
             
             if (peerConnection) {
                 peerConnection.close();
@@ -192,85 +341,63 @@
             
             peerConnection = new RTCPeerConnection(configuration);
             
-            // استقبال مسارات الفيديو
+            // استقبال الفيديو
             peerConnection.ontrack = (event) => {
                 if (event.streams && event.streams[0]) {
                     remoteVideo.srcObject = event.streams[0];
-                    remoteVideo.style.display = "block";
-                    localVideo.style.display = "none";
-                    statusDiv.innerText = "🟢 متصل! يتم عرض كاميرا الجهاز الآخر";
+                    remoteVideo.style.display = 'block';
+                    localVideo.style.display = 'none';
+                    statusDiv.innerHTML = '🟢 متصل! يتم عرض الكاميرا';
+                }
+            };
+            
+            peerConnection.oniceconnectionstatechange = () => {
+                if (peerConnection.iceConnectionState === 'failed') {
+                    statusDiv.innerHTML = '❌ فشل الاتصال. حاول مرة أخرى';
                 }
             };
             
             // إضافة المرشحات المحفوظة
-            if (offerDataObj.candidates) {
-                offerDataObj.candidates.forEach(candidate => {
-                    peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
-                });
-            }
-            
-            peerConnection.onicecandidate = (event) => {
-                if (event.candidate) {
-                    console.log("New candidate:", event.candidate);
+            if (data.candidates && data.candidates.length) {
+                for (const candidate of data.candidates) {
+                    try {
+                        await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+                    } catch(e) { console.log(e); }
                 }
-            };
+            }
             
             // تعيين الوصف البعيد
             await peerConnection.setRemoteDescription(new RTCSessionDescription({
                 type: 'offer',
-                sdp: offerDataObj.sdp
+                sdp: data.sdp
             }));
             
-            // إنشاء إجابة
+            // إنشاء الإجابة
             const answer = await peerConnection.createAnswer();
             await peerConnection.setLocalDescription(answer);
             
-            statusDiv.innerText = "✅ تم الاتصال! جاري عرض الكاميرا...";
+            // يمكن إرسال الإجابة عبر console فقط (للتطوير)
+            console.log('Answer created:', answer);
             
-        } catch (err) {
-            statusDiv.innerText = "❌ فشل الاتصال: " + err.message;
-            console.error(err);
+        } catch (error) {
+            console.error(error);
+            statusDiv.innerHTML = '❌ فشل الاتصال: ' + error.message;
+            alert('فشل الاتصال. تأكد من أن جهاز المراقبة لا يزال يبث');
         }
     }
     
-    // ========== نسخ رابط الاتصال ==========
-    function copyOffer() {
-        if (!offerData.value) {
-            statusDiv.innerText = "⚠️ شغّل الكاميرا أولاً لإنشاء رابط";
-            return;
-        }
-        
-        navigator.clipboard.writeText(offerData.value);
-        statusDiv.innerText = "📋 تم نسخ رابط الاتصال! أرسله للجهاز الآخر";
-        alert("✅ تم نسخ الرابط\nأرسله إلى الشخص الذي يريد مشاهدة الكاميرا");
-    }
-    
-    // ========== معلومات مساعدة ==========
-    function copyDebugInfo() {
-        const info = `كيفية الاستخدام:
-        
-1. جهاز المراقبة (الذي عنده الكاميرا):
-   - اضغط "تشغيل الكاميرا"
-   - انسخ الرابط من الحقل العلوي
-   - أرسله للمشاهد
-
-2. جهاز المشاهدة:
-   - الصق الرابط في الحقل السفلي
-   - اضغط "الاتصال بالكاميرا"
-   
-ملاحظة: يجب أن يكون الجهازان متصلين بالإنترنت`;
-        
-        alert(info);
-    }
-    
-    // التحقق من وجود رابط في الرابط الحالي
+    // التحقق من وجود رابط في URL عند التحميل
     window.addEventListener('load', () => {
-        if (window.location.hash && window.location.hash.includes('#data=')) {
-            const encodedData = window.location.hash.split('#data=')[1];
-            answerData.value = window.location.href.split('#')[0] + '#data=' + encodedData;
-            statusDiv.innerText = "📲 تم اكتشاف رابط! اضغط 'الاتصال بالكاميرا'";
+        if (window.location.hash && window.location.hash.includes('#room=')) {
+            const roomLink = window.location.href;
+            remoteLinkInput.value = roomLink;
+            statusDiv.innerHTML = '📲 تم اكتشاف رابط بث! اضغط "مشاهدة البث"';
         }
     });
+    
+    // ربط الأزرار
+    startBtn.onclick = startCamera;
+    stopBtn.onclick = stopCamera;
 </script>
 
 </body>
