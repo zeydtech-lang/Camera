@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>نظام مراقبة مباشر - Vdo.Ninja</title>
+    <title>نظام مراقبة مباشر - Google Meet</title>
     <style>
         * {
             margin: 0;
@@ -13,64 +13,50 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #141e30 0%, #243b55 100%);
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             color: white;
-            text-align: center;
-            padding: 15px;
+            padding: 20px;
             min-height: 100vh;
         }
         
         .container {
-            max-width: 600px;
+            max-width: 650px;
             margin: 0 auto;
         }
         
         h1 {
+            text-align: center;
+            margin-bottom: 25px;
             font-size: 1.8rem;
-            margin-bottom: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
         }
         
-        .mode-selector {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-        
-        .mode-btn {
-            flex: 1;
-            padding: 15px;
-            font-size: 1rem;
-            font-weight: bold;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: transform 0.2s, opacity 0.2s;
-            background: #1e1e2e;
-            color: white;
-            border: 2px solid #00e676;
-        }
-        
-        .mode-btn.active {
-            background: #00e676;
-            color: #000;
-            border-color: #00e676;
-        }
-        
-        .mode-btn:active {
-            transform: scale(0.98);
-        }
-        
-        .video-container {
-            background: #000;
+        .card {
+            background: rgba(255,255,255,0.1);
             border-radius: 20px;
-            overflow: hidden;
+            padding: 20px;
             margin-bottom: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .card h2 {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #00e676;
+        }
+        
+        .meet-frame {
+            background: #000;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 15px;
             aspect-ratio: 4/3;
         }
         
@@ -80,41 +66,38 @@
             border: none;
         }
         
-        .info-box {
-            background: rgba(255,255,255,0.1);
-            border-radius: 15px;
-            padding: 15px;
-            margin: 15px 0;
-        }
-        
-        .room-id-section {
-            background: #1e1e2e;
-            border-radius: 15px;
-            padding: 15px;
-            margin: 15px 0;
-        }
-        
-        .room-id {
-            background: #2a2a3e;
-            padding: 12px;
-            border-radius: 10px;
-            font-family: monospace;
-            font-size: 1.1rem;
-            word-break: break-all;
-            cursor: pointer;
+        input {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
             margin: 10px 0;
-            border: 1px solid #00e676;
+            font-size: 1rem;
+            text-align: center;
+            background: #2a2a3e;
+            color: white;
+            border: 1px solid #444;
+            direction: ltr;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #00e676;
         }
         
         button {
-            padding: 12px 20px;
+            padding: 14px 25px;
             font-size: 1rem;
             font-weight: bold;
             border: none;
-            border-radius: 50px;
+            border-radius: 12px;
             cursor: pointer;
             transition: all 0.2s;
             margin: 5px;
+        }
+        
+        button:active {
+            transform: scale(0.97);
         }
         
         .btn-green {
@@ -123,34 +106,44 @@
         }
         
         .btn-blue {
-            background: #2196f3;
+            background: #4285f4;
+            color: #fff;
+        }
+        
+        .btn-red {
+            background: #ea4335;
             color: #fff;
         }
         
         .btn-gray {
-            background: #555;
+            background: #5f6368;
             color: #fff;
         }
         
-        input {
-            width: 100%;
-            padding: 12px;
-            border-radius: 10px;
-            border: none;
-            margin: 10px 0;
-            font-size: 1rem;
+        .room-code {
+            background: #1e1e2e;
+            padding: 15px;
+            border-radius: 12px;
+            margin: 15px 0;
             text-align: center;
-            background: #2a2a3e;
-            color: white;
-            border: 1px solid #444;
+            border: 1px dashed #00e676;
+        }
+        
+        .room-code span {
+            font-family: monospace;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #00e676;
+            word-break: break-all;
         }
         
         .status {
-            background: rgba(0,0,0,0.7);
-            border-radius: 10px;
+            background: rgba(0,0,0,0.6);
+            border-radius: 12px;
             padding: 12px;
             margin: 15px 0;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
+            text-align: center;
         }
         
         hr {
@@ -158,15 +151,28 @@
             margin: 20px 0;
         }
         
-        .note {
-            font-size: 0.8rem;
-            color: #aaa;
+        .steps {
+            background: rgba(0,0,0,0.4);
+            border-radius: 12px;
+            padding: 15px;
             margin-top: 20px;
+            font-size: 0.85rem;
+        }
+        
+        .steps ol {
+            padding-right: 20px;
+            margin-top: 10px;
+        }
+        
+        .steps li {
+            margin: 8px 0;
         }
         
         @media (max-width: 500px) {
-            .mode-btn { padding: 12px; font-size: 0.9rem; }
+            body { padding: 15px; }
             h1 { font-size: 1.4rem; }
+            .card h2 { font-size: 1.1rem; }
+            button { padding: 12px 18px; font-size: 0.9rem; }
         }
     </style>
 </head>
@@ -175,200 +181,186 @@
 <div class="container">
     <h1>
         <span>🎥</span> نظام مراقبة مباشر
+        <span>🛡️</span>
     </h1>
     
-    <!-- وضع التشغيل -->
-    <div class="mode-selector">
-        <button class="mode-btn active" id="cameraModeBtn" onclick="setMode('camera')">📷 كاميرا (مراقبة)</button>
-        <button class="mode-btn" id="viewerModeBtn" onclick="setMode('viewer')">👁️ مشاهدة</button>
-    </div>
-    
-    <!-- حاوية الفيديو (iframe) -->
-    <div class="video-container" id="videoContainer">
-        <iframe id="vdoIframe" allow="camera *;microphone *;autoplay;display-capture;fullscreen;picture-in-picture"></iframe>
-    </div>
-    
-    <!-- معلومات الغرفة -->
-    <div class="room-id-section" id="roomInfoSection">
-        <div>🏠 <strong>معرف الغرفة الحالي:</strong></div>
-        <div class="room-id" id="roomIdDisplay" onclick="copyRoomId()">
-            جاري الإنشاء...
+    <!-- بطاقة الكاميرا (جهاز المراقبة) -->
+    <div class="card">
+        <h2>📷 جهاز المراقبة (الكاميرا)</h2>
+        
+        <div class="meet-frame" id="cameraFrameContainer">
+            <iframe id="cameraIframe" allow="camera *;microphone *;autoplay;display-capture;fullscreen"></iframe>
         </div>
-        <button class="btn-green" onclick="copyRoomId()">📋 نسخ معرف الغرفة</button>
-        <button class="btn-blue" onclick="generateNewRoom()">🔄 غرفة جديدة</button>
+        
+        <input type="text" id="roomName" placeholder="أدخل اسم الاجتماع (مثل: camera123)" value="camera" dir="ltr">
+        
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button class="btn-green" onclick="startMeeting('camera')">🎥 بدء الاجتماع (كاميرا)</button>
+            <button class="btn-red" onclick="stopMeeting('camera')">⏹️ إنهاء الاجتماع</button>
+        </div>
+        
+        <div class="room-code" id="roomCodeSection" style="display: none;">
+            📋 <strong>رابط الاجتماع (أرسله للمشاهد):</strong><br>
+            <span id="meetLink" onclick="copyLink()"></span>
+            <br><br>
+            <button class="btn-blue" onclick="copyLink()">📋 نسخ الرابط</button>
+        </div>
     </div>
     
-    <!-- قسم المشاهدة (يظهر فقط في وضع المشاهد) -->
-    <div id="viewerSection" style="display: none;">
-        <hr>
-        <h3>👀 مشاهدة كاميرا أخرى</h3>
-        <input type="text" id="remoteRoomId" placeholder="أدخل معرف غرفة المراقبة هنا">
-        <button class="btn-blue" onclick="joinRoom()">🔗 الاتصال بالغرفة</button>
+    <!-- بطاقة المشاهدة -->
+    <div class="card">
+        <h2>👁️ جهاز المشاهدة</h2>
+        
+        <div class="meet-frame">
+            <iframe id="viewerIframe" allow="camera *;microphone *;autoplay;display-capture;fullscreen"></iframe>
+        </div>
+        
+        <input type="text" id="joinRoomName" placeholder="الصق رابط الاجتماع أو أدخل اسمه" dir="ltr">
+        
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button class="btn-blue" onclick="joinMeeting()">🔗 الانضمام للاجتماع</button>
+            <button class="btn-gray" onclick="clearViewer()">🗑️ مسح</button>
+        </div>
     </div>
     
-    <!-- الحالة -->
+    <!-- حالة النظام -->
     <div class="status" id="status">
-        ✅ النظام جاهز - اختر وضع التشغيل
+        ✅ النظام جاهز - اختر دورك
     </div>
     
-    <div class="info-box">
-        💡 <strong>طريقة الاستخدام:</strong><br>
-        <strong>جهاز المراقبة (الكاميرا):</strong> اختر وضع "كاميرا" ← انسخ معرف الغرفة ← أرسله للمشاهد<br>
-        <strong>جهاز المشاهدة:</strong> اختر وضع "مشاهدة" ← الصق المعرف ← اضغط "الاتصال بالغرفة"
-    </div>
-    
-    <div class="note">
-        🔒 يعمل عبر Vdo.Ninja - تقنية WebRTC آمنة ومباشرة بين الأجهزة
+    <!-- خطوات الاستخدام -->
+    <div class="steps">
+        <strong>📖 طريقة الاستخدام (خطوات بسيطة):</strong>
+        <ol>
+            <li><strong>جهاز المراقبة (الكاميرا):</strong> أدخل اسم اجتماع (مثل: <code>camera123</code>) ← اضغط "بدء الاجتماع" ← اسمح بالوصول للكاميرا والميكروفون ← انسخ الرابط وأرسله للمشاهد</li>
+            <li><strong>جهاز المشاهدة:</strong> الصق الرابط المستلم في الحقل ← اضغط "الانضمام للاجتماع"</li>
+            <li><strong>ملاحظة:</strong> يمكن لكل من Google Meet وGmail استخدام نفس الرابط، لا حاجة لحساب Google (يمكن المشاركة كضيف)</li>
+        </ol>
     </div>
 </div>
 
 <script>
     // عناصر الصفحة
-    const vdoIframe = document.getElementById('vdoIframe');
-    const roomIdDisplay = document.getElementById('roomIdDisplay');
+    const cameraIframe = document.getElementById('cameraIframe');
+    const viewerIframe = document.getElementById('viewerIframe');
+    const roomNameInput = document.getElementById('roomName');
+    const joinRoomInput = document.getElementById('joinRoomName');
+    const roomCodeSection = document.getElementById('roomCodeSection');
+    const meetLinkSpan = document.getElementById('meetLink');
     const statusDiv = document.getElementById('status');
-    const cameraModeBtn = document.getElementById('cameraModeBtn');
-    const viewerModeBtn = document.getElementById('viewerModeBtn');
-    const roomInfoSection = document.getElementById('roomInfoSection');
-    const viewerSection = document.getElementById('viewerSection');
     
-    let currentMode = 'camera'; // 'camera' or 'viewer'
-    let currentRoomId = '';
+    let currentMeetingRoom = '';
+    let cameraMeetingStarted = false;
     
-    // إنشاء معرف غرفة عشوائي
-    function generateRoomId() {
-        return 'room_' + Math.random().toString(36).substring(2, 12) + '_' + Date.now().toString(36);
+    // إنشاء رابط Google Meet
+    function createMeetLink(roomName) {
+        // تنظيف اسم الغرفة
+        let cleanName = roomName.trim().toLowerCase().replace(/[^a-z0-9-]/g, '');
+        if (!cleanName) cleanName = 'camera' + Math.random().toString(36).substring(2, 8);
+        return `https://meet.google.com/${cleanName}`;
     }
     
-    // تحديث رابط Vdo.Ninja بناءً على الوضع والمعرف
-    function updateIframe() {
-        let iframeSrc = '';
-        
-        if (currentMode === 'camera') {
-            // وضع الكاميرا: رابط push (بث)
-            iframeSrc = `https://vdo.ninja/?push=${currentRoomId}&webcam&autostart&cleanoutput&transparent&label=كاميرا&codec=vp9`;
-        } else {
-            // وضع المشاهدة: رابط view (مشاهدة)
-            iframeSrc = `https://vdo.ninja/?view=${currentRoomId}&cleanoutput&transparent&label=مشاهدة&codec=vp9`;
+    // بدء الاجتماع (للكاميرا)
+    function startMeeting(type) {
+        let roomName = roomNameInput.value.trim();
+        if (!roomName) {
+            roomName = 'camera' + Math.random().toString(36).substring(2, 10);
+            roomNameInput.value = roomName;
         }
         
-        // إعداد صلاحيات iframe
-        vdoIframe.allow = "camera *;microphone *;autoplay;display-capture;fullscreen;picture-in-picture;encrypted-media;geolocation;";
-        vdoIframe.src = iframeSrc;
+        const meetUrl = createMeetLink(roomName);
+        currentMeetingRoom = roomName;
         
-        console.log(`Iframe updated: ${iframeSrc}`);
+        // فتح Google Meet في iframe
+        cameraIframe.src = meetUrl;
+        
+        // عرض رابط الاجتماع
+        meetLinkSpan.innerText = meetUrl;
+        roomCodeSection.style.display = 'block';
+        cameraMeetingStarted = true;
+        
+        statusDiv.innerHTML = `✅ تم بدء الاجتماع: ${meetUrl}<br>📤 انسخ الرابط وأرسله لجهاز المشاهدة`;
+        
+        // إظهار إشعار للمستخدم
+        setTimeout(() => {
+            if (cameraIframe.contentWindow) {
+                statusDiv.innerHTML = `🎥 الاجتماع يعمل!<br>🔊 تأكد من تشغيل الكاميرا والميكروفون في نافذة Google Meet`;
+            }
+        }, 2000);
     }
     
-    // إنشاء غرفة جديدة
-    function generateNewRoom() {
-        if (currentMode === 'camera') {
-            currentRoomId = generateRoomId();
-            roomIdDisplay.innerText = currentRoomId;
-            updateIframe();
-            statusDiv.innerHTML = `✅ تم إنشاء غرفة جديدة: ${currentRoomId}<br>أرسل هذا المعرف لجهاز المشاهدة`;
-        } else {
-            // في وضع المشاهدة، نقوم بمسح الحقل
-            document.getElementById('remoteRoomId').value = '';
-            statusDiv.innerHTML = `📱 أدخل معرف غرفة المراقبة في الحقل أعلاه`;
-        }
-    }
-    
-    // نسخ معرف الغرفة
-    function copyRoomId() {
-        if (currentRoomId && currentMode === 'camera') {
-            navigator.clipboard.writeText(currentRoomId);
-            statusDiv.innerHTML = `✅ تم نسخ معرف الغرفة: ${currentRoomId}`;
-            alert('✅ تم نسخ معرف الغرفة\nأرسله إلى جهاز المشاهدة');
-        } else if (currentMode === 'camera' && !currentRoomId) {
-            generateNewRoom();
-            setTimeout(() => copyRoomId(), 500);
-        } else {
-            alert('⚠️ أنت في وضع المشاهدة، لا يمكن نسخ معرف لأنك لست المراقب');
+    // إنهاء الاجتماع
+    function stopMeeting(type) {
+        if (type === 'camera') {
+            cameraIframe.src = 'about:blank';
+            roomCodeSection.style.display = 'none';
+            cameraMeetingStarted = false;
+            currentMeetingRoom = '';
+            statusDiv.innerHTML = '🔴 تم إنهاء اجتماع الكاميرا';
         }
     }
     
-    // الانضمام إلى غرفة (للمشاهد)
-    function joinRoom() {
-        const remoteId = document.getElementById('remoteRoomId').value.trim();
+    // الانضمام للاجتماع (للمشاهد)
+    function joinMeeting() {
+        let input = joinRoomInput.value.trim();
         
-        if (!remoteId) {
-            alert('⚠️ يرجى إدخال معرف الغرفة');
+        if (!input) {
+            statusDiv.innerHTML = '⚠️ الرجاء إدخال رابط الاجتماع أو اسمه';
             return;
         }
         
-        currentRoomId = remoteId;
-        roomIdDisplay.innerText = currentRoomId;
-        updateIframe();
-        statusDiv.innerHTML = `🟢 جاري الاتصال بالغرفة: ${remoteId}...`;
+        let meetUrl;
+        
+        // إذا كان المدخل رابطاً كاملاً
+        if (input.startsWith('http://') || input.startsWith('https://')) {
+            meetUrl = input;
+        } 
+        // إذا كان اسم غرفة فقط
+        else {
+            meetUrl = createMeetLink(input);
+        }
+        
+        // فتح Google Meet في iframe
+        viewerIframe.src = meetUrl;
+        statusDiv.innerHTML = `🟢 جاري الاتصال بالاجتماع: ${meetUrl}<br>🔊 انتظر قبول المضيف (إذا لزم الأمر)`;
+        
+        // حفظ آخر رابط مستخدم
+        joinRoomInput.value = meetUrl;
     }
     
-    // تغيير الوضع (كاميرا / مشاهدة)
-    function setMode(mode) {
-        currentMode = mode;
-        
-        // تحديث شكل الأزرار
-        if (mode === 'camera') {
-            cameraModeBtn.classList.add('active');
-            viewerModeBtn.classList.remove('active');
-            roomInfoSection.style.display = 'block';
-            viewerSection.style.display = 'none';
-            statusDiv.innerHTML = '📷 وضع الكاميرا - أنت تنشر البث';
-            
-            // إنشاء غرفة جديدة إذا لم تكن موجودة
-            if (!currentRoomId) {
-                generateNewRoom();
-            } else {
-                roomIdDisplay.innerText = currentRoomId;
-                updateIframe();
-            }
+    // مسح المشاهدة
+    function clearViewer() {
+        viewerIframe.src = 'about:blank';
+        joinRoomInput.value = '';
+        statusDiv.innerHTML = '🗑️ تم مسح نافذة المشاهدة';
+    }
+    
+    // نسخ رابط الاجتماع
+    function copyLink() {
+        const link = meetLinkSpan.innerText;
+        if (link && link !== '') {
+            navigator.clipboard.writeText(link);
+            statusDiv.innerHTML = `📋 تم نسخ الرابط: ${link}`;
+            alert('✅ تم نسخ رابط الاجتماع\nأرسله إلى جهاز المشاهدة');
         } else {
-            cameraModeBtn.classList.remove('active');
-            viewerModeBtn.classList.add('active');
-            roomInfoSection.style.display = 'block';
-            viewerSection.style.display = 'block';
-            statusDiv.innerHTML = '👁️ وضع المشاهدة - أدخل معرف الغرفة لمشاهدة الكاميرا';
-            
-            // إعادة تعيين المعرف
-            currentRoomId = '';
-            roomIdDisplay.innerText = '(أدخل معرف الغرفة أعلاه)';
-            
-            // تحديث iframe (سيكون رابط view بدون معرف حتى يدخل المستخدم)
-            vdoIframe.src = 'https://vdo.ninja/?cleanoutput&transparent';
+            alert('⚠️ لا يوجد رابط للنسخ. ابدأ الاجتماع أولاً.');
         }
     }
     
-    // الاستماع لرسائل من iframe (للحصول على حالة الاتصال)
+    // الاستماع لرسائل iframe (مساعدة)
     window.addEventListener('message', function(event) {
-        if (event.source !== vdoIframe.contentWindow) return;
-        
-        const data = event.data;
-        
-        if (data && data.stats) {
-            // تحديث الحالة عند وجود اتصال
-            if (data.stats.total_inbound_connections > 0 || data.stats.total_outbound_connections > 0) {
-                if (currentMode === 'camera') {
-                    statusDiv.innerHTML = '🟢 هناك مشاهد يتصل بك الآن! البث يعمل ✅';
-                } else {
-                    statusDiv.innerHTML = '🟢 متصل بالكاميرا! يتم عرض البث ✅';
-                }
-            }
-        }
-        
-        if (data && data.gotChat) {
-            console.log('Chat message:', data.gotChat);
-        }
+        console.log('Message from iframe:', event.origin);
     });
     
-    // تهيئة الصفحة
-    function init() {
-        currentRoomId = generateRoomId();
-        roomIdDisplay.innerText = currentRoomId;
-        updateIframe();
-        statusDiv.innerHTML = `✅ النظام جاهز! معرف الغرفة: ${currentRoomId}<br>أرسل هذا المعرف للجهاز الآخر`;
-    }
-    
-    // بدء التشغيل
-    init();
+    // تحميل الصفحة
+    window.addEventListener('load', () => {
+        statusDiv.innerHTML = '✅ النظام جاهز!<br>📷 جهاز الكاميرا: أدخل اسم اجتماع وابدأ<br>👁️ جهاز المشاهدة: الصق الرابط وانضم';
+        
+        // إضافة اسم غرفة افتراضي
+        if (!roomNameInput.value) {
+            roomNameInput.value = 'camera' + Math.random().toString(36).substring(2, 8);
+        }
+    });
 </script>
 
 </body>
