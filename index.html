@@ -2,366 +2,759 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>نظام مراقبة مباشر - Google Meet</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>دفتر الملاحظات الذكي</title>
+    
+    <!-- ملف Manifest للتطبيق -->
+    <link rel="manifest" href="data:application/manifest+json,{
+        \"name\":\"دفتر الملاحظات الذكي\",
+        \"short_name\":\"ملاحظاتي\",
+        \"description\":\"تطبيق لإدارة الملاحظات مع الصور والملفات\",
+        \"start_url\":\".\",
+        \"display\":\"standalone\",
+        \"theme_color\":\"#0F172A\",
+        \"background_color\":\"#0F172A\",
+        \"icons\":[{
+            \"src\":\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%234361ee'/%3E%3Ctext x='50' y='67' font-size='50' text-anchor='middle' fill='white'%3E📒%3C/text%3E%3C/svg%3E\",
+            \"sizes\":\"any\",
+            \"type\":\"image/svg+xml\",
+            \"purpose\":\"any maskable\"
+        }]
+    }">
+    
+    <!-- إعدادات iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="ملاحظاتي">
+    
+    <!-- ألوان الشاشة -->
+    <meta name="theme-color" content="#0F172A">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
-        
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            color: white;
-            padding: 20px;
+            font-family: 'Cairo', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(145deg, #0B1120 0%, #0F172A 100%);
+            color: #F1F5F9;
             min-height: 100vh;
+            padding: 16px;
         }
-        
-        .container {
-            max-width: 650px;
+
+        /* الحاوية الرئيسية */
+        .app-container {
+            max-width: 1200px;
             margin: 0 auto;
+            padding-bottom: 90px;
         }
-        
-        h1 {
+
+        /* الرأس */
+        .app-header {
             text-align: center;
-            margin-bottom: 25px;
-            font-size: 1.8rem;
+            margin-bottom: 32px;
+            padding: 20px 0;
+        }
+
+        .app-header h1 {
+            font-size: clamp(1.8rem, 6vw, 2.5rem);
+            background: linear-gradient(135deg, #A5B4FC, #818CF8);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .app-header p {
+            color: #94A3B8;
+            font-size: 0.9rem;
+        }
+
+        /* شبكة الأقسام */
+        .sections-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+            gap: 18px;
+            padding: 8px;
+        }
+
+        /* بطاقة القسم */
+        .section-card {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 28px;
+            padding: 20px 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .section-card:active {
+            transform: scale(0.97);
+            background: rgba(51, 65, 85, 0.8);
+        }
+
+        .section-icon {
+            font-size: 42px;
+            margin-bottom: 12px;
+        }
+
+        .section-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 6px;
+            word-break: break-word;
+        }
+
+        .notes-count {
+            font-size: 0.75rem;
+            color: #94A3B8;
+        }
+
+        .card-actions {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            display: flex;
+            gap: 8px;
+            z-index: 5;
+        }
+
+        .icon-btn {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            width: 32px;
+            height: 32px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.1s linear;
         }
-        
-        .card {
-            background: rgba(255,255,255,0.1);
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 20px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-        
-        .card h2 {
-            font-size: 1.3rem;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: #00e676;
-        }
-        
-        .meet-frame {
-            background: #000;
-            border-radius: 15px;
-            overflow: hidden;
-            margin-bottom: 15px;
-            aspect-ratio: 4/3;
-        }
-        
-        iframe {
+
+        /* صفحة التفاصيل */
+        .details-page {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            border: none;
+            background: #0B1120;
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 20px 16px;
         }
-        
-        input {
+
+        .details-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* نموذج الإضافة */
+        .add-note-card {
+            background: #1E293B;
+            border-radius: 28px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 1px solid #334155;
+        }
+
+        .note-textarea {
             width: 100%;
+            background: #0F172A;
+            border: 1px solid #334155;
+            border-radius: 20px;
             padding: 14px;
-            border-radius: 12px;
-            border: none;
-            margin: 10px 0;
-            font-size: 1rem;
-            text-align: center;
-            background: #2a2a3e;
             color: white;
-            border: 1px solid #444;
-            direction: ltr;
-        }
-        
-        input:focus {
-            outline: none;
-            border-color: #00e676;
-        }
-        
-        button {
-            padding: 14px 25px;
+            font-family: 'Cairo', sans-serif;
             font-size: 1rem;
-            font-weight: bold;
+            resize: vertical;
+            margin-bottom: 15px;
+        }
+
+        .file-zone {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+
+        .upload-btn {
+            background: #3B82F6;
             border: none;
-            border-radius: 12px;
+            padding: 10px 18px;
+            border-radius: 40px;
+            color: white;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
             cursor: pointer;
-            transition: all 0.2s;
-            margin: 5px;
         }
-        
-        button:active {
-            transform: scale(0.97);
+
+        .preview-attachments {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 12px 0;
         }
-        
-        .btn-green {
-            background: #00e676;
-            color: #000;
+
+        .preview-file {
+            background: #0F172A;
+            border-radius: 16px;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 80px;
+            position: relative;
         }
-        
-        .btn-blue {
-            background: #4285f4;
-            color: #fff;
-        }
-        
-        .btn-red {
-            background: #ea4335;
-            color: #fff;
-        }
-        
-        .btn-gray {
-            background: #5f6368;
-            color: #fff;
-        }
-        
-        .room-code {
-            background: #1e1e2e;
-            padding: 15px;
+
+        .preview-file img {
+            width: 70px;
+            height: 70px;
+            object-fit: cover;
             border-radius: 12px;
-            margin: 15px 0;
+        }
+
+        .btn-save {
+            background: #10B981;
+            width: 100%;
+            border: none;
+            padding: 14px;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 1rem;
+            color: white;
+            cursor: pointer;
+        }
+
+        /* قائمة الملاحظات */
+        .note-item {
+            background: #1E293B;
+            border-radius: 24px;
+            padding: 18px;
+            margin-bottom: 18px;
+            border: 1px solid #334155;
+        }
+
+        .note-text-content {
+            font-size: 1rem;
+            line-height: 1.5;
+            margin-bottom: 16px;
+            padding: 5px;
+            background: #0F172A;
+            border-radius: 16px;
+        }
+
+        .attachments-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 16px;
+            border-top: 1px solid #334155;
+            padding-top: 16px;
+        }
+
+        .attachment-item {
+            background: #0F172A;
+            border-radius: 16px;
+            padding: 8px 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .attachment-item img {
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            object-fit: cover;
+            cursor: pointer;
+        }
+
+        .note-footer-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            border-top: 1px solid #334155;
+            padding-top: 14px;
+        }
+
+        .small-icon {
+            background: #334155;
+            padding: 8px 14px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        /* مودال التأكيد */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: #1E293B;
+            border-radius: 32px;
+            padding: 28px;
+            width: 85%;
+            max-width: 340px;
             text-align: center;
-            border: 1px dashed #00e676;
+        }
+
+        .float-add {
+            position: fixed;
+            bottom: 25px;
+            left: 25px;
+            background: #3B82F6;
+            width: 60px;
+            height: 60px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            cursor: pointer;
+            z-index: 99;
         }
         
-        .room-code span {
-            font-family: monospace;
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #00e676;
-            word-break: break-all;
+        /* زر التثبيت */
+        .install-banner {
+            background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+            border-radius: 20px;
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
         }
         
-        .status {
-            background: rgba(0,0,0,0.6);
-            border-radius: 12px;
-            padding: 12px;
-            margin: 15px 0;
-            font-size: 0.85rem;
-            text-align: center;
-        }
-        
-        hr {
-            border-color: #444;
-            margin: 20px 0;
-        }
-        
-        .steps {
-            background: rgba(0,0,0,0.4);
-            border-radius: 12px;
-            padding: 15px;
-            margin-top: 20px;
-            font-size: 0.85rem;
-        }
-        
-        .steps ol {
-            padding-right: 20px;
-            margin-top: 10px;
-        }
-        
-        .steps li {
-            margin: 8px 0;
-        }
-        
-        @media (max-width: 500px) {
-            body { padding: 15px; }
-            h1 { font-size: 1.4rem; }
-            .card h2 { font-size: 1.1rem; }
-            button { padding: 12px 18px; font-size: 0.9rem; }
+        @media (display-mode: standalone) {
+            .install-banner {
+                display: none !important;
+            }
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>
-        <span>🎥</span> نظام مراقبة مباشر
-        <span>🛡️</span>
-    </h1>
-    
-    <!-- بطاقة الكاميرا (جهاز المراقبة) -->
-    <div class="card">
-        <h2>📷 جهاز المراقبة (الكاميرا)</h2>
-        
-        <div class="meet-frame" id="cameraFrameContainer">
-            <iframe id="cameraIframe" allow="camera *;microphone *;autoplay;display-capture;fullscreen"></iframe>
-        </div>
-        
-        <input type="text" id="roomName" placeholder="أدخل اسم الاجتماع (مثل: camera123)" value="camera" dir="ltr">
-        
-        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-            <button class="btn-green" onclick="startMeeting('camera')">🎥 بدء الاجتماع (كاميرا)</button>
-            <button class="btn-red" onclick="stopMeeting('camera')">⏹️ إنهاء الاجتماع</button>
-        </div>
-        
-        <div class="room-code" id="roomCodeSection" style="display: none;">
-            📋 <strong>رابط الاجتماع (أرسله للمشاهد):</strong><br>
-            <span id="meetLink" onclick="copyLink()"></span>
-            <br><br>
-            <button class="btn-blue" onclick="copyLink()">📋 نسخ الرابط</button>
-        </div>
+<div class="app-container" id="homeScreen">
+    <div id="installBanner" class="install-banner" onclick="installApp()">
+        <span>📲 ثبّت التطبيق على جهازك</span>
+        <span>⬇️ تثبيت</span>
     </div>
     
-    <!-- بطاقة المشاهدة -->
-    <div class="card">
-        <h2>👁️ جهاز المشاهدة</h2>
-        
-        <div class="meet-frame">
-            <iframe id="viewerIframe" allow="camera *;microphone *;autoplay;display-capture;fullscreen"></iframe>
-        </div>
-        
-        <input type="text" id="joinRoomName" placeholder="الصق رابط الاجتماع أو أدخل اسمه" dir="ltr">
-        
-        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-            <button class="btn-blue" onclick="joinMeeting()">🔗 الانضمام للاجتماع</button>
-            <button class="btn-gray" onclick="clearViewer()">🗑️ مسح</button>
-        </div>
+    <div class="app-header">
+        <h1>📒 دفتر الملاحظات</h1>
+        <p>نصوص، صور، وملفات PDF في مكان واحد</p>
     </div>
-    
-    <!-- حالة النظام -->
-    <div class="status" id="status">
-        ✅ النظام جاهز - اختر دورك
+    <div id="sectionsGrid" class="sections-grid"></div>
+    <div class="float-add" onclick="createNewSection()">+</div>
+</div>
+
+<div id="detailsScreen" class="details-page">
+    <div class="details-container">
+        <button onclick="goBackHome()" style="background:#334155; border:none; padding:12px 20px; border-radius:40px; color:white; margin-bottom:20px; cursor:pointer;">← العودة للأقسام</button>
+        <h2 id="sectionTitleHeader" style="margin-bottom: 25px; text-align:center;"></h2>
+
+        <div class="add-note-card">
+            <textarea id="newNoteText" rows="2" class="note-textarea" placeholder="اكتب ملاحظتك هنا..."></textarea>
+            <div class="file-zone">
+                <label class="upload-btn" onclick="triggerFileUpload()">📎 إرفاق صورة / PDF</label>
+                <input type="file" id="fileInput" multiple accept="image/*,application/pdf" style="display:none" onchange="handleFilesSelection(event)">
+            </div>
+            <div id="tempPreviewArea" class="preview-attachments"></div>
+            <button class="btn-save" onclick="addNewNote()">➕ إضافة الملاحظة</button>
+        </div>
+
+        <div id="notesListContainer"></div>
     </div>
-    
-    <!-- خطوات الاستخدام -->
-    <div class="steps">
-        <strong>📖 طريقة الاستخدام (خطوات بسيطة):</strong>
-        <ol>
-            <li><strong>جهاز المراقبة (الكاميرا):</strong> أدخل اسم اجتماع (مثل: <code>camera123</code>) ← اضغط "بدء الاجتماع" ← اسمح بالوصول للكاميرا والميكروفون ← انسخ الرابط وأرسله للمشاهد</li>
-            <li><strong>جهاز المشاهدة:</strong> الصق الرابط المستلم في الحقل ← اضغط "الانضمام للاجتماع"</li>
-            <li><strong>ملاحظة:</strong> يمكن لكل من Google Meet وGmail استخدام نفس الرابط، لا حاجة لحساب Google (يمكن المشاركة كضيف)</li>
-        </ol>
+</div>
+
+<div id="confirmModal" class="modal">
+    <div class="modal-content">
+        <h3 id="modalTitleText">تأكيد</h3>
+        <p id="modalMessageText" style="margin: 20px 0; color:#CBD5E1;">هل أنت متأكد؟</p>
+        <div style="display: flex; gap: 12px;">
+            <button id="modalConfirmBtn" class="upload-btn" style="background:#EF4444;">نعم</button>
+            <button onclick="closeModal()" class="upload-btn" style="background:#475569;">إلغاء</button>
+        </div>
     </div>
 </div>
 
 <script>
-    // عناصر الصفحة
-    const cameraIframe = document.getElementById('cameraIframe');
-    const viewerIframe = document.getElementById('viewerIframe');
-    const roomNameInput = document.getElementById('roomName');
-    const joinRoomInput = document.getElementById('joinRoomName');
-    const roomCodeSection = document.getElementById('roomCodeSection');
-    const meetLinkSpan = document.getElementById('meetLink');
-    const statusDiv = document.getElementById('status');
-    
-    let currentMeetingRoom = '';
-    let cameraMeetingStarted = false;
-    
-    // إنشاء رابط Google Meet
-    function createMeetLink(roomName) {
-        // تنظيف اسم الغرفة
-        let cleanName = roomName.trim().toLowerCase().replace(/[^a-z0-9-]/g, '');
-        if (!cleanName) cleanName = 'camera' + Math.random().toString(36).substring(2, 8);
-        return `https://meet.google.com/${cleanName}`;
+    // ---------- هيكل البيانات ----------
+    let appData = [];
+    let currentSectionId = null;
+    let pendingFilesArray = [];
+    let currentActionCallback = null;
+    let deferredPrompt = null;
+
+    // تسجيل Service Worker لـ PWA
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js').then(() => {
+            console.log('Service Worker registered');
+        }).catch(err => {
+            console.log('Service Worker failed:', err);
+        });
     }
     
-    // بدء الاجتماع (للكاميرا)
-    function startMeeting(type) {
-        let roomName = roomNameInput.value.trim();
-        if (!roomName) {
-            roomName = 'camera' + Math.random().toString(36).substring(2, 10);
-            roomNameInput.value = roomName;
+    // كشف إمكانية التثبيت
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        document.getElementById('installBanner').style.display = 'flex';
+    });
+    
+    function installApp() {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('User accepted install');
+                }
+                deferredPrompt = null;
+                document.getElementById('installBanner').style.display = 'none';
+            });
         }
-        
-        const meetUrl = createMeetLink(roomName);
-        currentMeetingRoom = roomName;
-        
-        // فتح Google Meet في iframe
-        cameraIframe.src = meetUrl;
-        
-        // عرض رابط الاجتماع
-        meetLinkSpan.innerText = meetUrl;
-        roomCodeSection.style.display = 'block';
-        cameraMeetingStarted = true;
-        
-        statusDiv.innerHTML = `✅ تم بدء الاجتماع: ${meetUrl}<br>📤 انسخ الرابط وأرسله لجهاز المشاهدة`;
-        
-        // إظهار إشعار للمستخدم
-        setTimeout(() => {
-            if (cameraIframe.contentWindow) {
-                statusDiv.innerHTML = `🎥 الاجتماع يعمل!<br>🔊 تأكد من تشغيل الكاميرا والميكروفون في نافذة Google Meet`;
+    }
+
+    // تحميل البيانات
+    function loadData() {
+        const stored = localStorage.getItem('smart_notes_app_v2');
+        if(stored) {
+            appData = JSON.parse(stored);
+        } else {
+            appData = [
+                { id: Date.now(), title: "مشاريعي", notes: [] },
+                { id: Date.now()+1, title: "أفكار", notes: [] }
+            ];
+        }
+    }
+
+    function saveToLocal() {
+        localStorage.setItem('smart_notes_app_v2', JSON.stringify(appData));
+    }
+
+    // عرض الأقسام
+    function renderSections() {
+        const grid = document.getElementById('sectionsGrid');
+        if(!grid) return;
+        grid.innerHTML = '';
+        appData.forEach(section => {
+            const card = document.createElement('div');
+            card.className = 'section-card';
+            card.innerHTML = `
+                <div class="card-actions">
+                    <div class="icon-btn" onclick="event.stopPropagation(); askConfirmation('حذف القسم', 'سيتم حذف القسم وكل ملاحظاته نهائياً', () => deleteSectionById('${section.id}'))">🗑️</div>
+                    <div class="icon-btn" onclick="event.stopPropagation(); editSectionName('${section.id}')">✏️</div>
+                </div>
+                <div onclick="openSection('${section.id}')">
+                    <div class="section-icon">📁</div>
+                    <div class="section-title">${escapeHtml(section.title)}</div>
+                    <div class="notes-count">${section.notes.length} ملاحظة</div>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    function createNewSection() {
+        let name = prompt("أدخل اسم القسم الجديد:");
+        if(name && name.trim()) {
+            const newSection = {
+                id: Date.now(),
+                title: name.trim(),
+                notes: []
+            };
+            appData.push(newSection);
+            saveToLocal();
+            renderSections();
+        }
+    }
+
+    function editSectionName(sectionId) {
+        const section = appData.find(s => s.id == sectionId);
+        if(!section) return;
+        let newName = prompt("تعديل اسم القسم", section.title);
+        if(newName && newName.trim()) {
+            section.title = newName.trim();
+            saveToLocal();
+            renderSections();
+            if(currentSectionId == sectionId) {
+                document.getElementById('sectionTitleHeader').innerText = section.title;
             }
-        }, 2000);
-    }
-    
-    // إنهاء الاجتماع
-    function stopMeeting(type) {
-        if (type === 'camera') {
-            cameraIframe.src = 'about:blank';
-            roomCodeSection.style.display = 'none';
-            cameraMeetingStarted = false;
-            currentMeetingRoom = '';
-            statusDiv.innerHTML = '🔴 تم إنهاء اجتماع الكاميرا';
         }
     }
-    
-    // الانضمام للاجتماع (للمشاهد)
-    function joinMeeting() {
-        let input = joinRoomInput.value.trim();
-        
-        if (!input) {
-            statusDiv.innerHTML = '⚠️ الرجاء إدخال رابط الاجتماع أو اسمه';
+
+    function deleteSectionById(sectionId) {
+        appData = appData.filter(s => s.id != sectionId);
+        saveToLocal();
+        if(currentSectionId == sectionId) {
+            goBackHome();
+        } else {
+            renderSections();
+        }
+    }
+
+    function openSection(sectionId) {
+        currentSectionId = sectionId;
+        const section = appData.find(s => s.id == sectionId);
+        if(section) {
+            document.getElementById('sectionTitleHeader').innerText = section.title;
+            document.getElementById('homeScreen').style.display = 'none';
+            document.getElementById('detailsScreen').style.display = 'block';
+            renderNotesList();
+            pendingFilesArray = [];
+            document.getElementById('tempPreviewArea').innerHTML = '';
+            document.getElementById('newNoteText').value = '';
+        }
+    }
+
+    // عرض الملاحظات
+    function renderNotesList() {
+        const section = appData.find(s => s.id == currentSectionId);
+        if(!section) return;
+        const container = document.getElementById('notesListContainer');
+        container.innerHTML = '';
+        section.notes.forEach((note, idx) => {
+            const noteDiv = document.createElement('div');
+            noteDiv.className = 'note-item';
+            
+            let textHtml = `<div class="note-text-content">${note.text ? escapeHtml(note.text) : '<span style="color:#94A3B8;">(بدون نص)</span>'}</div>`;
+            
+            let attachmentsHtml = '<div class="attachments-list">';
+            if(note.files && note.files.length) {
+                note.files.forEach((file, fIdx) => {
+                    if(file.type.startsWith('image/')) {
+                        attachmentsHtml += `
+                            <div class="attachment-item">
+                                <img src="${file.dataURL}" alt="صورة" onclick="window.open('${file.dataURL}','_blank')">
+                                <span>${escapeHtml(file.name)}</span>
+                                <span class="icon-btn" style="background:#EF4444;" onclick="removeFileFromNote('${currentSectionId}', ${idx}, ${fIdx})">✖</span>
+                            </div>
+                        `;
+                    } else if(file.type === 'application/pdf') {
+                        attachmentsHtml += `
+                            <div class="attachment-item">
+                                <a href="${file.dataURL}" target="_blank" style="color:#60A5FA;">📄 ${escapeHtml(file.name)}</a>
+                                <span class="icon-btn" style="background:#EF4444;" onclick="removeFileFromNote('${currentSectionId}', ${idx}, ${fIdx})">✖</span>
+                            </div>
+                        `;
+                    }
+                });
+            } else {
+                attachmentsHtml += '<div style="color:#64748B;">لا توجد مرفقات</div>';
+            }
+            attachmentsHtml += '</div>';
+            
+            const actions = `
+                <div class="note-footer-actions">
+                    <div class="small-icon" onclick="editNoteTextHandler(${idx})">✏️ تعديل النص</div>
+                    <div class="small-icon" onclick="addMoreFilesToNote(${idx})">📎 إضافة ملفات</div>
+                    <div class="small-icon" style="background:#EF4444;" onclick="askConfirmation('حذف ملاحظة', 'سيتم حذف الملاحظة وجميع مرفقاتها', () => deleteNoteByIdx(${idx}))">🗑️ حذف</div>
+                </div>
+            `;
+            noteDiv.innerHTML = textHtml + attachmentsHtml + actions;
+            container.appendChild(noteDiv);
+        });
+    }
+
+    function triggerFileUpload() {
+        document.getElementById('fileInput').click();
+    }
+
+    function handleFilesSelection(event) {
+        const files = Array.from(event.target.files);
+        for(let file of files) {
+            if(file.type === 'application/pdf' || file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    pendingFilesArray.push({
+                        name: file.name,
+                        type: file.type,
+                        dataURL: e.target.result
+                    });
+                    updateTempPreview();
+                };
+                reader.readAsDataURL(file);
+            } else {
+                alert("نوع الملف غير مدعوم: يُسمح فقط بالصور أو PDF");
+            }
+        }
+        event.target.value = '';
+    }
+
+    function updateTempPreview() {
+        const previewDiv = document.getElementById('tempPreviewArea');
+        previewDiv.innerHTML = '';
+        pendingFilesArray.forEach((f, i) => {
+            const fileDiv = document.createElement('div');
+            fileDiv.className = 'preview-file';
+            if(f.type.startsWith('image/')) {
+                fileDiv.innerHTML = `<img src="${f.dataURL}"><span style="font-size:10px;">${f.name.slice(0,12)}</span><span onclick="removePendingFile(${i})" style="position:absolute; top:-5px; left:-5px; background:red; border-radius:50%; width:20px; cursor:pointer;">✖</span>`;
+            } else {
+                fileDiv.innerHTML = `<div style="background:#0F172A; padding:8px;">📄 PDF</div><span>${f.name.slice(0,10)}</span><span onclick="removePendingFile(${i})" style="position:absolute; top:-5px; left:-5px; background:red; border-radius:50%; width:20px; cursor:pointer;">✖</span>`;
+            }
+            previewDiv.appendChild(fileDiv);
+        });
+    }
+
+    function removePendingFile(index) {
+        pendingFilesArray.splice(index, 1);
+        updateTempPreview();
+    }
+
+    function addNewNote() {
+        const textVal = document.getElementById('newNoteText').value.trim();
+        if(textVal === '' && pendingFilesArray.length === 0) {
+            alert("أضف نصاً أو ملفاً على الأقل");
             return;
         }
-        
-        let meetUrl;
-        
-        // إذا كان المدخل رابطاً كاملاً
-        if (input.startsWith('http://') || input.startsWith('https://')) {
-            meetUrl = input;
-        } 
-        // إذا كان اسم غرفة فقط
-        else {
-            meetUrl = createMeetLink(input);
-        }
-        
-        // فتح Google Meet في iframe
-        viewerIframe.src = meetUrl;
-        statusDiv.innerHTML = `🟢 جاري الاتصال بالاجتماع: ${meetUrl}<br>🔊 انتظر قبول المضيف (إذا لزم الأمر)`;
-        
-        // حفظ آخر رابط مستخدم
-        joinRoomInput.value = meetUrl;
-    }
-    
-    // مسح المشاهدة
-    function clearViewer() {
-        viewerIframe.src = 'about:blank';
-        joinRoomInput.value = '';
-        statusDiv.innerHTML = '🗑️ تم مسح نافذة المشاهدة';
-    }
-    
-    // نسخ رابط الاجتماع
-    function copyLink() {
-        const link = meetLinkSpan.innerText;
-        if (link && link !== '') {
-            navigator.clipboard.writeText(link);
-            statusDiv.innerHTML = `📋 تم نسخ الرابط: ${link}`;
-            alert('✅ تم نسخ رابط الاجتماع\nأرسله إلى جهاز المشاهدة');
-        } else {
-            alert('⚠️ لا يوجد رابط للنسخ. ابدأ الاجتماع أولاً.');
+        const section = appData.find(s => s.id == currentSectionId);
+        if(section) {
+            const newNote = {
+                text: textVal,
+                files: [...pendingFilesArray]
+            };
+            section.notes.push(newNote);
+            saveToLocal();
+            document.getElementById('newNoteText').value = '';
+            pendingFilesArray = [];
+            updateTempPreview();
+            renderNotesList();
         }
     }
-    
-    // الاستماع لرسائل iframe (مساعدة)
-    window.addEventListener('message', function(event) {
-        console.log('Message from iframe:', event.origin);
-    });
-    
-    // تحميل الصفحة
-    window.addEventListener('load', () => {
-        statusDiv.innerHTML = '✅ النظام جاهز!<br>📷 جهاز الكاميرا: أدخل اسم اجتماع وابدأ<br>👁️ جهاز المشاهدة: الصق الرابط وانضم';
-        
-        // إضافة اسم غرفة افتراضي
-        if (!roomNameInput.value) {
-            roomNameInput.value = 'camera' + Math.random().toString(36).substring(2, 8);
-        }
-    });
-</script>
 
+    function editNoteTextHandler(noteIdx) {
+        const section = appData.find(s => s.id == currentSectionId);
+        if(!section) return;
+        const oldText = section.notes[noteIdx].text;
+        const newText = prompt("تعديل نص الملاحظة", oldText);
+        if(newText !== null) {
+            section.notes[noteIdx].text = newText.trim();
+            saveToLocal();
+            renderNotesList();
+        }
+    }
+
+    function addMoreFilesToNote(noteIdx) {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.multiple = true;
+        input.accept = 'image/*,application/pdf';
+        input.onchange = (e) => {
+            const files = Array.from(e.target.files);
+            let processed = 0;
+            files.forEach(file => {
+                if(file.type === 'application/pdf' || file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        const section = appData.find(s => s.id == currentSectionId);
+                        if(section && section.notes[noteIdx]) {
+                            section.notes[noteIdx].files.push({
+                                name: file.name,
+                                type: file.type,
+                                dataURL: ev.target.result
+                            });
+                            processed++;
+                            if(processed === files.filter(f => f.type === 'application/pdf' || f.type.startsWith('image/')).length) {
+                                saveToLocal();
+                                renderNotesList();
+                            }
+                        } else {
+                            processed++;
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    alert(`تخطي: ${file.name} غير مدعوم`);
+                    processed++;
+                }
+            });
+            if(files.length === 0) renderNotesList();
+        };
+        input.click();
+    }
+
+    function removeFileFromNote(sectionId, noteIdx, fileIdx) {
+        const section = appData.find(s => s.id == sectionId);
+        if(section && section.notes[noteIdx]) {
+            section.notes[noteIdx].files.splice(fileIdx, 1);
+            saveToLocal();
+            renderNotesList();
+        }
+    }
+
+    function deleteNoteByIdx(noteIdx) {
+        const section = appData.find(s => s.id == currentSectionId);
+        if(section) {
+            section.notes.splice(noteIdx, 1);
+            saveToLocal();
+            renderNotesList();
+        }
+    }
+
+    function askConfirmation(title, msg, callback) {
+        document.getElementById('modalTitleText').innerText = title;
+        document.getElementById('modalMessageText').innerText = msg;
+        currentActionCallback = callback;
+        document.getElementById('confirmModal').style.display = 'flex';
+    }
+    
+    function closeModal() {
+        document.getElementById('confirmModal').style.display = 'none';
+        currentActionCallback = null;
+    }
+    
+    document.getElementById('modalConfirmBtn').onclick = () => {
+        if(currentActionCallback) currentActionCallback();
+        closeModal();
+    };
+
+    function goBackHome() {
+        document.getElementById('homeScreen').style.display = 'block';
+        document.getElementById('detailsScreen').style.display = 'none';
+        currentSectionId = null;
+        renderSections();
+    }
+
+    function escapeHtml(str) {
+        if(!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if(m === '&') return '&amp;';
+            if(m === '<') return '&lt;';
+            if(m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    loadData();
+    renderSections();
+</script>
 </body>
 </html>
